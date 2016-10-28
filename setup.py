@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 try:
     import setuptools
 except ImportError:
@@ -8,28 +9,26 @@ except ImportError:
 from setuptools import setup, Extension
 from setuptools import find_packages
 
+mod_cre2 = Extension('cffi_re2._cre2', sources=['cre2.cpp'], libraries=['re2'],
+    include_dirs=['/usr/local/include'], extra_compile_args=["-g", "-std=c++11"],
+    extra_link_args=["-g"])
 
-metadata = {}
-options = {}
-metadata['name'] = 'cffi_re2'
-metadata['version'] = '0.1.3'
-metadata['packages'] = find_packages()
+tests_require=['nose']
+if sys.version_info < (2, 7):
+    tests_require.append('nose_extra_tools')
 
-mod_cre2 = Extension('_cre2', sources=['_cre2.cpp'], libraries = ['re2'], include_dirs = ['/usr/local/include'])
-
-metadata['install_requires'] = ['cffi==0.7']
-metadata['ext_modules'] = [mod_cre2]
-metadata['zip_safe'] = False
-
-
-long_description = ''
-fname_readme = 'README.md'
-if os.path.exists(fname_readme):
-    with open('README.md') as f:
-        long_description = f.read()
-
-metadata['description'] = 'Access re2 library using cffi'
-metadata['long_description'] = long_description
-metadata['url'] = 'https://github.com/vls/cffi_re2'
-
-setup(**metadata)
+setup(
+    name='cffi_re2',
+    license='MIT license',
+    packages=find_packages(exclude=['tests*']),
+    install_requires=['cffi>=0.7', 'six'],
+    ext_modules=[mod_cre2],
+    zip_safe=False,
+    test_suite='nose.collector',
+    tests_require=tests_require,
+    setup_requires=['nose>=1.0'],
+    version='0.2.0',
+    long_description=open("README.md").read(),
+    description='Access re2 library using cffi',
+    url="https://github.com/vls/cffi_re2"
+)
